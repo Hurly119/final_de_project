@@ -80,6 +80,7 @@ def combine_all_articles(ds=None,**kwargs):
         dfs.append(df)
     game_articles = pd.concat(dfs)
     game_articles = game_articles.drop_duplicates()
+    game_articles = game_articles.dropna(subset=["appids"])
     game_articles.to_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv")
 
 @task(task_id="scrape_game_reviews")
@@ -93,7 +94,7 @@ def scrape_game_reviews(ds=None,**kwargs):
         all_reviews += reviews_list
     game_reviews = pd.DataFrame(all_reviews)
 
-    game_reviews = game_reviews.drop_duplicates(subset="review")
+    game_reviews = game_reviews.drop_duplicates(subset=["review"])
 
     game_reviews["timestamp_created"] = game_reviews["timestamp_created"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
     game_reviews["timestamp_updated"] = game_reviews["timestamp_updated"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
