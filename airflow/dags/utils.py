@@ -31,11 +31,9 @@ import random
 import boto3
 
 
-MY_API_KEY = Variable.get("STEAM_API_KEY")
-
 def upload_string_to_gcs(csv_body, uploaded_filename, service_secret=os.environ.get('SERVICE_SECRET')):
     BUCKET_NAME = "final-de-storage"
-    MY_FOLDER_PREFIX = "final_test"
+    MY_FOLDER_PREFIX = "final_project"
 
     gcs_resource = boto3.resource(
         "s3",
