@@ -53,26 +53,17 @@ def eurogamer_feed(ds=None, **kwargs):
     upload_formatted_rss_feed("eurogamer","https://www.eurogamer.net/?format=rss")
 
 
-@task(task_id="gamespot_standard")
-def gamespot_feed(ds=None, **kwargs):
-    upload_formatted_rss_feed("gamespot","https://www.gamespot.com/feeds/mashup/")
 
 @task(task_id="indigames_plus")
 def indigames_plus_feed(ds=None, **kwargs):
     upload_formatted_rss_feed("indigames_plus","https://indiegamesplus.com/feed")
 
-@task(task_id="ps_blog")
-def ps_blog_feed(ds=None, **kwargs):
-    upload_formatted_rss_feed("ps_blog","http://feeds.feedburner.com/psblog")
 
 
 @task(task_id="rock_paper_sg")
 def rock_paper_sg_feed(ds=None, **kwargs):
     upload_formatted_rss_feed("rock_paper_sg","http://feeds.feedburner.com/RockPaperShotgun")
 
-@task(task_id="steam_news")
-def steam_news_feed(ds=None, **kwargs):
-    upload_formatted_rss_feed("steam_news","https://store.steampowered.com/feeds/news.xml")
 
 @task(task_id="ancient_gaming")
 def ancient_gaming_feed(ds=None, **kwargs):
