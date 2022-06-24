@@ -206,7 +206,7 @@ def spacy_ner(ds=None, **kwargs):
 
 
 @task(task_id="load_data")
-def load_data(ds=None, **kwargs):
+def load_data(folder=None,ds=None, **kwargs):
     files = os.listdir(DATA_PATH)
     for file in files:
         outfile = f"{DATA_PATH}{file}"
@@ -214,8 +214,11 @@ def load_data(ds=None, **kwargs):
             continue
         df = pd.read_csv(outfile)
         csv_buffer = StringIO()
+        filename = file
+        if folder:
+            filename = f"{folder}/{file}"
         df.to_csv(csv_buffer)
-        upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=file)
+        upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=filename)
 with DAG(
     'scrapers_proj_test',
     # These args will get passed on to each operator
