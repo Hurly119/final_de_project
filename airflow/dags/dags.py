@@ -141,8 +141,8 @@ def word_count(ds=None, **kwargs):
         # and add a conditional logic below
         ###########################################################################################
     print(f"getting word_count for game articles...")
-    game_articles['sum_word_cnt'] = game_articles['summary'].apply(lambda x: len(x.split()))
-    game_articles['dict_word_cnt'] = game_articles['summary'].apply(lambda x: word_count(x))
+    game_articles['sum_word_cnt'] = game_articles['summary'].apply(lambda x: len(str(x).split()))
+    game_articles['dict_word_cnt'] = game_articles['summary'].apply(lambda x: word_count(str(x)))
         ###########################################################################################
 
     game_articles.to_csv(game_article_filename, index=False)
@@ -150,8 +150,8 @@ def word_count(ds=None, **kwargs):
     print()
 
     print(f"getting word_count for game reviews...")
-    game_reviews['sum_word_cnt'] = game_reviews['review'].apply(lambda x: len(x.split()))
-    game_reviews['dict_word_cnt'] = game_reviews['review'].apply(lambda x: word_count(x))
+    game_reviews['sum_word_cnt'] = game_reviews['review'].apply(lambda x: len(str(x).split()))
+    game_reviews['dict_word_cnt'] = game_reviews['review'].apply(lambda x: word_count(str(x)))
 
     game_reviews.to_csv(game_reviews_filename,index=False)
     print(f"word_count for game reviews collected!")
