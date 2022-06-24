@@ -140,7 +140,7 @@ def get_nouns(title_summary):
     summary = BeautifulSoup(title_summary,"html.parser").text.strip().lower()
     doc = nlp(summary)
     noun_phrases = set([noun.text for noun in doc.noun_chunks])
-    return [noun for noun in noun_phrases if noun not in stop_words]
+    return [noun.strip() for noun in noun_phrases if noun not in stop_words]
 
 def upload_formatted_rss_feed(feed_name, feed):
     DATA_PATH = '/opt/airflow/data/'
