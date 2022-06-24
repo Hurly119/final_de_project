@@ -79,7 +79,7 @@ def combine_all_articles(ds=None,**kwargs):
         df = pd.read_csv(outfile)
         dfs.append(df)
     game_articles = pd.concat(dfs)
-
+    game_articles = game_articles.drop_duplicates()
     game_articles.to_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv")
 
 @task(task_id="scrape_game_reviews")
@@ -92,6 +92,9 @@ def scrape_game_reviews(ds=None,**kwargs):
         reviews_list = scrape_reviews(appid)
         all_reviews += reviews_list
     game_reviews = pd.DataFrame(all_reviews)
+
+    game_reviews = game_reviews.drop_duplicates(subset="review")
+
     game_reviews["timestamp_created"] = game_reviews["timestamp_created"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
     game_reviews["timestamp_updated"] = game_reviews["timestamp_updated"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
     game_reviews.to_csv(f"{DATA_PATH}game_reviews_{DATE_NOW}.csv")
@@ -104,7 +107,7 @@ def scrape_game_details(ds=None,**kwargs):
     lst_game_details = scrape_appdetails(appids)
     
     game_details = pd.DataFrame(lst_game_details).rename(columns={"appid":"appids"})
-
+    game_details = game_details.drop_duplicates(subset="appids")
     game_details.to_csv(f"{DATA_PATH}game_details_{DATE_NOW}.csv")
 
 #################################################################
@@ -295,11 +298,10 @@ with DAG(
         dag=dag
     )
 
-    t1 >> load_data() >> t2_end
+    # t1 >> load_data() >> t2_end
 
-    # t1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> t13 \
-    # >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> t132 \
-    # >> [,rock_paper_sg_feed(),ancient_gaming_feed()] \
-    # >> combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] \
-    # >> t2_end >> [sentiment_analysis(),spacy_ner(),word_count()] >> t3_end
+    t1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> t13 \
+    >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> t132 \
+    >> [scrape_game_details(),scrape_game_reviews()] \
+    >> t2_end >> [sentiment_analysis(),spacy_ner(),word_count()] >> load_data() >> t3_end
     # combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] >> t2_end
