@@ -156,7 +156,7 @@ def word_count(ds=None, **kwargs):
     game_reviews.to_csv(game_reviews_filename,index=False)
     print(f"word_count for game reviews collected!")
     print()
-    
+
 @task(task_id='sentiment_analysis')
 def sentiment_analysis(ds=None,**kwargs):
     game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
@@ -166,10 +166,10 @@ def sentiment_analysis(ds=None,**kwargs):
     game_reviews = pd.read_csv(game_reviews_filename)
 
     print("getting sentiment for articles...")
-    game_articles['polarity_score_summary'] = game_articles['summary'].apply(lambda x: analyze_sentiment(x))
+    game_articles['polarity_score_summary'] = game_articles['summary'].apply(lambda x: analyze_sentiment(str(x)))
     game_articles["sentiment_summary"] = game_articles["polarity_score_summary"].apply(lambda x: label_polarity(x["compound"]))
         
-    game_articles['polarity_score_title'] = game_articles['title'].apply(lambda x: analyze_sentiment(x))
+    game_articles['polarity_score_title'] = game_articles['title'].apply(lambda x: analyze_sentiment(str(x)))
     game_articles["sentiment_title"] = game_articles["polarity_score_title"].apply(lambda x: label_polarity(x["compound"]))
     game_articles.to_csv(game_article_filename, index=False)
     print("sentiment for articles taken!")
@@ -203,13 +203,13 @@ def spacy_ner(ds=None, **kwargs):
         # and add a conditional logic below
         ###########################################################################################
     print("getting NER for game articles...")
-    game_articles['NER'] = game_articles['summary'].apply(lambda x: ner(x))
+    game_articles['NER'] = game_articles['summary'].apply(lambda x: ner(str(x)))
     game_articles.to_csv(game_article_filename,index=False)
     print("getting NER for game articles complete!")
     print()
         ###########################################################################################
     print("getting NER for game reviews...")
-    game_reviews["NER"] = game_reviews["review"].apply(lambda x: ner(x))
+    game_reviews["NER"] = game_reviews["review"].apply(lambda x: ner(str(x)))
     game_reviews.to_csv(game_reviews_filename)
     print("getting NER for game reviews complete!")
     print()
