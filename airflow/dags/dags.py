@@ -58,8 +58,6 @@ def eurogamer_feed(ds=None, **kwargs):
 def indigames_plus_feed(ds=None, **kwargs):
     upload_formatted_rss_feed("indigames_plus","https://indiegamesplus.com/feed")
 
-
-
 @task(task_id="rock_paper_sg")
 def rock_paper_sg_feed(ds=None, **kwargs):
     upload_formatted_rss_feed("rock_paper_sg","http://feeds.feedburner.com/RockPaperShotgun")
@@ -94,7 +92,8 @@ def scrape_game_reviews(ds=None,**kwargs):
         reviews_list = scrape_reviews(appid)
         all_reviews += reviews_list
     game_reviews = pd.DataFrame(all_reviews)
-
+    game_reviews["timestamp_created"] = game_reviews["timestamp_created"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
+    game_reviews["timestamp_updated"] = game_reviews["timestamp_updated"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
     game_reviews.to_csv(f"{DATA_PATH}game_reviews_{DATE_NOW}.csv")
 
 @task(task_id="scrape_game_details")
