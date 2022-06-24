@@ -76,7 +76,7 @@ def combine_all_articles(ds=None,**kwargs):
         outfile = f"{DATA_PATH}articles/{file}"
         if not outfile.endswith('.csv'):
             continue
-        df = pd.read_csv(outfile)
+        df = pd.read_csv(outfile,on_bad_lines="skip")
         dfs.append(df)
     game_articles = pd.concat(dfs)
     game_articles = game_articles.drop_duplicates()
@@ -85,7 +85,7 @@ def combine_all_articles(ds=None,**kwargs):
 
 @task(task_id="scrape_game_reviews")
 def scrape_game_reviews(ds=None,**kwargs):
-    game_articles = pd.read_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv")
+    game_articles = pd.read_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv",on_bad_lines="skip")
     appids = get_unique_appids(game_articles)
 
     all_reviews = []
@@ -102,7 +102,7 @@ def scrape_game_reviews(ds=None,**kwargs):
 
 @task(task_id="scrape_game_details")
 def scrape_game_details(ds=None,**kwargs):
-    game_articles = pd.read_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv")
+    game_articles = pd.read_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv",on_bad_lines="skip")
     appids = get_unique_appids(game_articles)
     
     lst_game_details = scrape_appdetails(appids)
@@ -128,8 +128,8 @@ def word_count(ds=None, **kwargs):
     game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
     game_reviews_filename = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
 
-    game_articles = pd.read_csv(game_article_filename)
-    game_reviews = pd.read_csv(game_reviews_filename)
+    game_articles = pd.read_csv(game_article_filename,on_bad_lines="skip")
+    game_reviews = pd.read_csv(game_reviews_filename,on_bad_lines="skip")
         ################################# TODO: IMPORTANT #########################################
         # you need to find the column where the text/content is located e.g. 'summary' or 'content'
         # and add a conditional logic below
@@ -156,8 +156,8 @@ def sentiment_analysis(ds=None,**kwargs):
     game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
     game_reviews_filename = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
 
-    game_articles = pd.read_csv(game_article_filename)
-    game_reviews = pd.read_csv(game_reviews_filename)
+    game_articles = pd.read_csv(game_article_filename,on_bad_lines="skip")
+    game_reviews = pd.read_csv(game_reviews_filename,on_bad_lines="skip")
 
     print("getting sentiment for articles...")
     game_articles['polarity_score_summary'] = game_articles['summary'].apply(lambda x: analyze_sentiment(str(x)))
@@ -190,8 +190,8 @@ def spacy_ner(ds=None, **kwargs):
     game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
     game_reviews_filename = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
 
-    game_articles = pd.read_csv(game_article_filename)
-    game_reviews = pd.read_csv(game_reviews_filename)
+    game_articles = pd.read_csv(game_article_filename,on_bad_lines="skip")
+    game_reviews = pd.read_csv(game_reviews_filename,on_bad_lines="skip")
         ################################# TODO: IMPORTANT #########################################
         # you need to find the column where the text/content is located e.g. 'summary' or 'content'
         # and add a conditional logic below
@@ -216,7 +216,7 @@ def load_data(ds=None, **kwargs):
         outfile = f"{DATA_PATH}{file}"
         if not outfile.endswith('.csv'):
             continue
-        df = pd.read_csv(outfile)
+        df = pd.read_csv(outfile,on_bad_lines="skip")
         csv_buffer = StringIO()
 
         if "details" in file:
@@ -259,50 +259,81 @@ with DAG(
     tags=['scrapers'],
 ) as dag:
 
-    t1 = BashOperator(
-        task_id="t1_start_msg",
-        bash_command = "echo 't1_end'",
-        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 1: scraping\"}' \"https://discord.com/api/webhooks/986224448984195082/pQp4GNcVWh-J2XtmIycVnjxYuGRGVIYFeveDRS5EwvgmGozthyd_alj8wbeKhfVn9SSk/slack\"",
-        dag=dag
-    )
-    t13 = BashOperator(
-        task_id="t13_start_msg",
-        bash_command = "echo 't1_end'",
-        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 1: scraping\"}' \"https://discord.com/api/webhooks/986224448984195082/pQp4GNcVWh-J2XtmIycVnjxYuGRGVIYFeveDRS5EwvgmGozthyd_alj8wbeKhfVn9SSk/slack\"",
-        dag=dag
-    )
-    t132 = BashOperator(
-        task_id="t132_start_msg",
-        bash_command = "echo 't1_end'",
-        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 1: scraping\"}' \"https://discord.com/api/webhooks/986224448984195082/pQp4GNcVWh-J2XtmIycVnjxYuGRGVIYFeveDRS5EwvgmGozthyd_alj8wbeKhfVn9SSk/slack\"",
+    dagstart_msg = BashOperator(
+        task_id="dagstart_msg",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"Dag tasks starting!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
-    t1_end = BashOperator(
-        task_id="t1_end_msg",
-        bash_command = "echo 't1_end'",
-        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1: scraping\"}' \"https://discord.com/api/webhooks/986224448984195082/pQp4GNcVWh-J2XtmIycVnjxYuGRGVIYFeveDRS5EwvgmGozthyd_alj8wbeKhfVn9SSk/slack\"",
+    article_scraping1 = BashOperator(
+        task_id="article_scraping1",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"task 1.0, initiating data extraction: article scraping 1!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
-    t2_end = BashOperator(
-        task_id="t2_end_msg",
-        bash_command = "echo 't1_end'",
-        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1: scraping\"}' \"https://discord.com/api/webhooks/986224448984195082/pQp4GNcVWh-J2XtmIycVnjxYuGRGVIYFeveDRS5EwvgmGozthyd_alj8wbeKhfVn9SSk/slack\"",
+    article_scraping1_end = BashOperator(
+        task_id="article_scraping1_end",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"continuing task 1.0: article scraping 1 complete!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
-        
-    t3_end = BashOperator(
-        task_id="t3_end_msg",
-        bash_command = "echo 't1_end'",
-        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1: scraping\"}' \"https://discord.com/api/webhooks/986224448984195082/pQp4GNcVWh-J2XtmIycVnjxYuGRGVIYFeveDRS5EwvgmGozthyd_alj8wbeKhfVn9SSk/slack\"",
+
+    article_scraping2 = BashOperator(
+        task_id="article_scraping2",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"continuing task 1.0: article scraping 2!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+
+    article_scraping2_end = BashOperator(
+        task_id="article_scraping2_end",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1.0: article scraping complete!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+
+    steam_scraping = BashOperator(
+        task_id="steam_scraping",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 1.5: scraping user reviews and game details!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+
+    steam_scraping_end = BashOperator(
+        task_id="data_extraction_end",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1.5: steam scraping complete! all data extracted.\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+
+    transformation = BashOperator(
+        task_id="transformation_start",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 2.0: beginning data transformation\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+    transformation_end = BashOperator(
+        task_id="transformation_end",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 2.0: data transformation completed!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+
+    loading_data = BashOperator(
+        task_id="data_loading",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 3.0: beginning data loading\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+    loading_data_end = BashOperator(
+        task_id="data_loading_end",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 3.0: data successfully loaded to the cloud!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        dag=dag
+    )
+    dagend_msg = BashOperator(
+        task_id="dagend_msg",
+        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"All dag tasks completed!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     # t1 >> load_data() >> t2_end
-
-    t1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> t13 \
-    >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> t132 \
-    >> [scrape_game_details(),scrape_game_reviews()] \
-    >> t2_end >> [sentiment_analysis(),spacy_ner(),word_count()] >> load_data() >> t3_end
+    dagstart_msg >> \
+    article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
+    >> article_scraping2 >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> combine_all_articles() >> article_scraping2_end \
+    >> steam_scraping >> [scrape_game_details(),scrape_game_reviews()] >> steam_scraping_end \
+    >> transformation >> [sentiment_analysis(),spacy_ner(),word_count()] >> load_data() >> transformation_end \
+    >> loading_data >> load_data() >> loading_data_end >> \
+    dagend_msg
     # combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] >> t2_end
