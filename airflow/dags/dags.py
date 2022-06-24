@@ -10,7 +10,7 @@ import pybase64
 from google.cloud import bigquery, storage
 import shutil 
 
-
+from glob import glob
 # The DAG object; we'll need this to instantiate a DAG
 from airflow import DAG
 from airflow.decorators import task
@@ -26,7 +26,7 @@ nltk.download('stopwords')
 from nltk.corpus import stopwords
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from utils import upload_formatted_rss_feed,scrape_reviews,scrape_appdetails,get_unique_appids,analyze_sentiment,label_polarity
+from utils import upload_formatted_rss_feed,scrape_reviews,scrape_appdetails,get_unique_appids,analyze_sentiment,label_polarity,upload_string_to_gcs
 
 BUCKET_NAME = "news_sites"
 
@@ -205,6 +205,18 @@ def spacy_ner(ds=None, **kwargs):
     print("getting NER for game reviews complete!")
     print()
 
+
+@task(task_id="load_data")
+def load_data(ds=None, **kwargs):
+    files = os.listdir(DATA_PATH)
+    for file in files:
+        outfile = f"{DATA_PATH}{file}"
+        if not outfile.endswith('.csv'):
+            continue
+        df = pd.read_csv(outfile)
+        csv_buffer = StringIO()
+        df.to_csv(csv_buffer)
+        upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=file)
 with DAG(
     'scrapers_proj_test',
     # These args will get passed on to each operator
@@ -276,11 +288,11 @@ with DAG(
         dag=dag
     )
 
-    t1 >> [indigames_plus_feed()] >> combine_all_articles() >> t2_end >> \
-    [scrape_game_details(),scrape_game_reviews()] >> t13 >> [word_count(),spacy_ner(),sentiment_analysis()] >> t132
+    t1 >> load_data() >> t2_end
+
     # t1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> t13 \
-    # >> [eurogamer_feed(),ps_blog_feed(),gamespot_feed()] >> t132 \
-    # >> [steam_news_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] \
+    # >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> t132 \
+    # >> [,rock_paper_sg_feed(),ancient_gaming_feed()] \
     # >> combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] \
     # >> t2_end >> [sentiment_analysis(),spacy_ner(),word_count()] >> t3_end
     # combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] >> t2_end
