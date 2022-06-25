@@ -66,7 +66,7 @@ def get_request(url,params=None,retries=0):
 
 ##initialize dfs
 def get_appid(game_name):
-    sleep_time = random.randint(1,5)
+    sleep_time = random.randint(1,3)
     game_name = game_name.lower()
     response = requests.get(url=f'https://store.steampowered.com/search/?term={game_name}&category1=998', headers={'User-Agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(response.text, 'html.parser')
