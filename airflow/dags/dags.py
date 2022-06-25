@@ -329,9 +329,10 @@ with DAG(
     )
 
     # t1 >> load_data() >> t2_end
-    dagstart_msg >> \
-    article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
-    >> article_scraping2 >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> combine_all_articles() >> article_scraping2_end \
+    # dagstart_msg >> \
+    # article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
+    # >> article_scraping2 >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> combine_all_articles() >> article_scraping2_end \
+    article_scraping2 >> [eurogamer_feed()] >> combine_all_articles() >> article_scraping2_end \
     >> steam_scraping >> [scrape_game_details(),scrape_game_reviews()] >> steam_scraping_end \
     >> transformation >> [sentiment_analysis(),spacy_ner(),word_count()] >> load_data() >> transformation_end \
     >> loading_data >> load_data() >> loading_data_end >> \
