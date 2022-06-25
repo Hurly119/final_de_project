@@ -1,7 +1,7 @@
 airflow/keys*
 airflow/.vscode
 airflow/.DS_Store
-airflow/logs
-airflow/data
+airflow/logs*
+airflow/data*
 
 
