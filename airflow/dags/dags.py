@@ -30,13 +30,13 @@ from utils import upload_formatted_rss_feed,scrape_reviews,scrape_appdetails,get
 
 BUCKET_NAME = "news_sites"
 
-# Group directory in the bucket
-MY_FOLDER_PREFIX = "fem_hans"
-
 DATE_NOW = datetime.now().strftime("%Y-%m-%d")
 # Data directory for CSVs and OSM Images
 DATA_PATH = '/opt/airflow/data/'
 
+GAME_ARTICLE_FILENAME = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
+GAME_REVIEWS_FILENAME = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
+GAME_DETAILS_FILENAME = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
 #################################################################
 ################### 1.) EXTRACT #################################
 #################################################################
@@ -81,11 +81,11 @@ def combine_all_articles(ds=None,**kwargs):
     game_articles = pd.concat(dfs)
     game_articles = game_articles.drop_duplicates()
     game_articles = game_articles.dropna(subset=["appids"])
-    game_articles.to_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv")
+    game_articles.to_csv(GAME_ARTICLE_FILENAME,index=False)
 
 @task(task_id="scrape_game_reviews")
 def scrape_game_reviews(ds=None,**kwargs):
-    game_articles = pd.read_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv",on_bad_lines="skip")
+    game_articles = pd.read_csv(GAME_ARTICLE_FILENAME,on_bad_lines="skip")
     appids = get_unique_appids(game_articles)
 
     all_reviews = []
@@ -98,18 +98,18 @@ def scrape_game_reviews(ds=None,**kwargs):
 
     game_reviews["timestamp_created"] = game_reviews["timestamp_created"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
     game_reviews["timestamp_updated"] = game_reviews["timestamp_updated"].apply(lambda x: datetime.utcfromtimestamp(int(x)).strftime("%Y-%m-%d %H:%M:%S"))
-    game_reviews.to_csv(f"{DATA_PATH}game_reviews_{DATE_NOW}.csv")
+    game_reviews.to_csv(GAME_REVIEWS_FILENAME,index=False)
 
 @task(task_id="scrape_game_details")
 def scrape_game_details(ds=None,**kwargs):
-    game_articles = pd.read_csv(f"{DATA_PATH}game_articles_{DATE_NOW}.csv",on_bad_lines="skip")
+    game_articles = pd.read_csv(GAME_ARTICLE_FILENAME,on_bad_lines="skip")
     appids = get_unique_appids(game_articles)
     
     lst_game_details = scrape_appdetails(appids)
     
     game_details = pd.DataFrame(lst_game_details).rename(columns={"appid":"appids"})
-    game_details = game_details.drop_duplicates(subset="appids")
-    game_details.to_csv(f"{DATA_PATH}game_details_{DATE_NOW}.csv")
+    game_details = game_details.drop_duplicates(subset=["appids"])
+    game_details.to_csv(GAME_DETAILS_FILENAME,index=False)
 
 #################################################################
 ################### 2.) TRANSFORM ###############################
@@ -125,11 +125,9 @@ def word_count(ds=None, **kwargs):
         return word_dict
 
 
-    game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
-    game_reviews_filename = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
 
-    game_articles = pd.read_csv(game_article_filename,on_bad_lines="skip")
-    game_reviews = pd.read_csv(game_reviews_filename,on_bad_lines="skip")
+    game_articles = pd.read_csv(GAME_ARTICLE_FILENAME,on_bad_lines="skip")
+    game_reviews = pd.read_csv(GAME_REVIEWS_FILENAME,on_bad_lines="skip")
         ################################# TODO: IMPORTANT #########################################
         # you need to find the column where the text/content is located e.g. 'summary' or 'content'
         # and add a conditional logic below
@@ -139,7 +137,7 @@ def word_count(ds=None, **kwargs):
     game_articles['dict_word_cnt'] = game_articles['summary'].apply(lambda x: word_count(str(x)))
         ###########################################################################################
 
-    game_articles.to_csv(game_article_filename, index=False)
+    game_articles.to_csv(GAME_ARTICLE_FILENAME, index=False)
     print(f"word_count for game_articles collected!")
     print()
 
@@ -147,17 +145,15 @@ def word_count(ds=None, **kwargs):
     game_reviews['sum_word_cnt'] = game_reviews['review'].apply(lambda x: len(str(x).split()))
     game_reviews['dict_word_cnt'] = game_reviews['review'].apply(lambda x: word_count(str(x)))
 
-    game_reviews.to_csv(game_reviews_filename,index=False)
+    game_reviews.to_csv(GAME_REVIEWS_FILENAME,index=False)
     print(f"word_count for game reviews collected!")
     print()
 
 @task(task_id='sentiment_analysis')
 def sentiment_analysis(ds=None,**kwargs):
-    game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
-    game_reviews_filename = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
 
-    game_articles = pd.read_csv(game_article_filename,on_bad_lines="skip")
-    game_reviews = pd.read_csv(game_reviews_filename,on_bad_lines="skip")
+    game_articles = pd.read_csv(GAME_ARTICLE_FILENAME,on_bad_lines="skip")
+    game_reviews = pd.read_csv(GAME_REVIEWS_FILENAME,on_bad_lines="skip")
 
     print("getting sentiment for articles...")
     game_articles['polarity_score_summary'] = game_articles['summary'].apply(lambda x: analyze_sentiment(str(x)))
@@ -165,12 +161,12 @@ def sentiment_analysis(ds=None,**kwargs):
         
     game_articles['polarity_score_title'] = game_articles['title'].apply(lambda x: analyze_sentiment(str(x)))
     game_articles["sentiment_title"] = game_articles["polarity_score_title"].apply(lambda x: label_polarity(x["compound"]))
-    game_articles.to_csv(game_article_filename, index=False)
+    game_articles.to_csv(GAME_ARTICLE_FILENAME, index=False)
     print("sentiment for articles taken!")
 
     print("getting sentiment for game reviews...")
     game_reviews["sentiment"] = game_reviews["voted_up"].apply(lambda x: "positive" if x else "negative")
-    game_reviews.to_csv(game_reviews_filename,index=False)
+    game_reviews.to_csv(GAME_REVIEWS_FILENAME,index=False)
     print("sentiment for reviews taken!")
 # NER
 @task(task_id='spacy_ner')
@@ -187,24 +183,21 @@ def spacy_ner(ds=None, **kwargs):
             print(entity.text, entity.label_)
         return ner
 
-    game_article_filename = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
-    game_reviews_filename = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
-
-    game_articles = pd.read_csv(game_article_filename,on_bad_lines="skip")
-    game_reviews = pd.read_csv(game_reviews_filename,on_bad_lines="skip")
+    game_articles = pd.read_csv(GAME_ARTICLE_FILENAME,on_bad_lines="skip")
+    game_reviews = pd.read_csv(GAME_REVIEWS_FILENAME,on_bad_lines="skip")
         ################################# TODO: IMPORTANT #########################################
         # you need to find the column where the text/content is located e.g. 'summary' or 'content'
         # and add a conditional logic below
         ###########################################################################################
     print("getting NER for game articles...")
     game_articles['NER'] = game_articles['summary'].apply(lambda x: ner(str(x)))
-    game_articles.to_csv(game_article_filename,index=False)
+    game_articles.to_csv(GAME_ARTICLE_FILENAME,index=False)
     print("getting NER for game articles complete!")
     print()
         ###########################################################################################
     print("getting NER for game reviews...")
     game_reviews["NER"] = game_reviews["review"].apply(lambda x: ner(str(x)))
-    game_reviews.to_csv(game_reviews_filename)
+    game_reviews.to_csv(GAME_REVIEWS_FILENAME,index=False)
     print("getting NER for game reviews complete!")
     print()
 
@@ -226,35 +219,51 @@ def load_data(ds=None, **kwargs):
         else:
             filename = f"game_reviews/{file}"
 
-        df.to_csv(csv_buffer)
+        df.to_csv(csv_buffer,index=False)
         upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=filename)
+
+
+@task(task_id='delete_residuals')
+def delete_residuals(ds=None, **kwargs): 
+    files = os.listdir(f"{DATA_PATH}")
+    for file in files: 
+        outfile = f"{DATA_PATH}{file}"
+        print(file)
+        if os.path.isdir(outfile):
+            shutil.rmtree(outfile)
+        else: 
+            os.remove(outfile)
+
+@task(task_id="data_validation")
+def data_validation(ds=None,**kwargs):
+    game_articles = pd.read_csv(GAME_ARTICLE_FILENAME)
+    game_reviews = pd.read_csv(GAME_REVIEWS_FILENAME)
+    game_details = pd.read_csv(GAME_DETAILS_FILENAME)
+
+    game_details = game_details.dropna(how="all")
+    game_details = game_details.rename(columns={"appid":"appids"})
+    game_details = game_details.drop_duplicates(subset=["appids"])
+    game_details.to_csv(GAME_DETAILS_FILENAME,index=False)
+
+
+    game_reviews = game_reviews.dropna(subset=["review"])
+    game_reviews = game_reviews.drop_duplicates(subset=["review"])
+    game_reviews.to_csv(GAME_REVIEWS_FILENAME,index=False)
+
+    game_articles = game_articles.dropna(how="all")
+    game_articles = game_articles.drop_duplicates()
+    game_articles.to_csv(GAME_ARTICLE_FILENAME,index=False)
+
 with DAG(
     'scrapers_proj_test',
     # These args will get passed on to each operator
     # You can override them on a per-task basis during operator initialization
     default_args={
-        # 'depends_on_past': False,
-        # 'email': ['caleb@eskwelabs.com'],
-        # 'email_on_failure': False,
-        # 'email_on_retry': False,
-        # 'retries': 1,
-        # 'retry_delay': timedelta(minutes=5),
-        # 'queue': 'bash_queue',
-        # 'pool': 'backfill',
-        # 'priority_weight': 10,
-        # 'end_date': datetime(2016, 1, 1),
-        # 'wait_for_downstream': False,
-        # 'sla': timedelta(hours=2),
-        # 'execution_timeout': timedelta(seconds=300),
-        # 'on_failure_callback': some_function,
-        # 'on_success_callback': some_other_function,
-        # 'on_retry_callback': another_function,
-        # 'sla_miss_callback': yet_another_function,
-        # 'trigger_rule': 'all_success'
+
     },
     description='Pipeline demo',
     schedule_interval=timedelta(days=1),
-    start_date=datetime(2022, 6, 15),
+    start_date=datetime(2022, 6, 25),
     catchup=False,
     tags=['scrapers'],
 ) as dag:
@@ -329,12 +338,12 @@ with DAG(
     )
 
     # t1 >> load_data() >> t2_end
-    # >> article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
     dagstart_msg \
+    >> article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
     >> article_scraping2 >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> combine_all_articles() >> article_scraping2_end \
     >> steam_scraping >> [scrape_game_details(),scrape_game_reviews()] >> steam_scraping_end \
-    >> transformation >> [sentiment_analysis(),spacy_ner(),word_count()] >> transformation_end \
-    >> loading_data >> load_data() >> loading_data_end >> \
+    >> transformation >> sentiment_analysis() >> word_count() >> spacy_ner() >> transformation_end >> data_validation() \
+    >> loading_data >> load_data() >> loading_data_end >> delete_residuals() >> \
     dagend_msg
     # article_scraping2 >> [eurogamer_feed()] >> combine_all_articles() >> article_scraping2_end \
     # combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] >> t2_end

@@ -4,16 +4,14 @@ The data pipeline is catered to providing accesible, transformed, and normalized
 ## Contribution Guidelines
 
 - Have a Look at the [project structure](#project-structure) and [folder overview](#folder-overview) 
-- If you're creating a task, Go to the task folder and create a new folder with the below naming convention and add a README.md with task details and goals to help other contributors understand
-  - Task Folder Naming Convention : _task-n-taskname.(n is the task number)_ ex: task-1-data-analysis, task-2-model-deployment etc.
-  - Create a README.md with a table containing information table about all contributions for the task.
-- If you're contributing for a task, please make sure to store in relavant location and update the README.md information table with your contribution details.
-- Make sure your File names(jupyter notebooks, python files, data sheet file names etc) has proper naming to help others in easily identifing them.
-- Please restrict yourself from creating unnessesary folders other than in 'tasks' folder (as above mentioned naming convention) to avoid confusion.
+- all tasks should be configured in dags.py
+    - when creating a new task follow the naming convention function_name = task_id
+    - functions that are not a task should be in utils.py.
+    
 
 
 ## Project Structure
-    |—airflow                           <- Main project directory. Contains Airflow files and configurations
+    |—airflow                           <- Main project directory. Contains Airflow files, folders and configurations
         |—dags                          <- Folder where all dags and tasks are configured.
             |—dags.py                   <- File where all tasks and dags are configured.
             |—utils.py                  <- helper functions used by dags.py.
@@ -25,6 +23,15 @@ The data pipeline is catered to providing accesible, transformed, and normalized
         |—.env                          <- used to configure AIRFLOW_UID
     |—README.MD                         <- The top-level README for developers/collaborators using this project.
 ---
+
+## Folder Overview
+
+- Airflow   - Main project directory. Contains Airflow files, folders and configurations
+- dags      - 
+- data      - temporary data storage before uploading to the cloud. Emptied after loading
+- model     - folder where spacy model for the project is stored
+    - the functions specifically specify the directory /model/en_core_web_sm/en_core_web_sm-3.3.0
+    - make sure this folder is properly downloaded
 ## Main use 
 The relevant files are stored in the `dags` folder, with the `test_dag.py` containing a sample dag for testing. You can modify the name, and description of these dags by modifying the relevant strings in between the bash operators.
 
@@ -71,6 +78,10 @@ The SERVICE keys are used in `boto3.resource(...)` function to access your cloud
 
 DISCORD_WEBHOOK_API is used for `BashOperator(...)` in dags for notification.   
 
+- if spacy model is not being loaded properly
 
+```
+python3 -m spacy download en_core_web_sm
+```
 
 
