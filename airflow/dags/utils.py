@@ -51,7 +51,7 @@ def get_request(url,params=None,retries=0):
         print("Failed to get response cancelling...,")
         return None
     try:
-        response = requests.get(url=url,params=params)
+        response = requests.get(url=url,params=params,timeout=5)
     except Exception as e:
         retries +=1
         return get_request(url,params,retries)
@@ -66,7 +66,6 @@ def get_request(url,params=None,retries=0):
 
 ##initialize dfs
 def get_appid(game_name):
-    sleep_time = random.randint(3,10)
     game_name = game_name.lower()
     response = requests.get(url=f'https://store.steampowered.com/search/?term={game_name}&category1=998', headers={'User-Agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(response.text, 'html.parser')
