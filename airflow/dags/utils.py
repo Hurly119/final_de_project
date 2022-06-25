@@ -31,19 +31,10 @@ import random
 import boto3
 
 
-def upload_string_to_gcs(csv_body, uploaded_filename, service_secret=os.environ.get('SERVICE_SECRET')):
-    BUCKET_NAME = "final-de-storage"
-    MY_FOLDER_PREFIX = "final_project"
 
-    gcs_resource = boto3.resource(
-        "s3",
-        region_name="auto",
-        endpoint_url="https://storage.googleapis.com",
-        aws_access_key_id=Variable.get("SERVICE_ACCESS_KEY"),
-        aws_secret_access_key=Variable.get("SERVICE_SECRET"),
-    )
-    gcs_resource.Object(BUCKET_NAME, MY_FOLDER_PREFIX + "/" + uploaded_filename).put(Body=csv_body.getvalue())
-
+##################################################################################################################################
+################################################# 1.) EXTRACT ####################################################################
+##################################################################################################################################
 
 def get_request(url,params=None,retries=0):
     sleep_time = random.randint(1,10)
@@ -64,7 +55,6 @@ def get_request(url,params=None,retries=0):
         retries+=1
         return get_request(url,params,retries)
 
-##initialize dfs
 def get_appid(game_name):
     game_name = game_name.lower()
     response = requests.get(url=f'https://store.steampowered.com/search/?term={game_name}&category1=998', headers={'User-Agent': 'Mozilla/5.0'})
@@ -209,7 +199,6 @@ def scrape_reviews(appid):
         if not have_cursor: break
     return reviews_list
 
-# def scrape_appdetails(appids):
 def scrape_appdetails(appids):
     list_appdetails = []
     for appid in appids:
@@ -225,6 +214,15 @@ def get_unique_appids(game_articles):
     appids = non_null_appids["appids"].unique()
     return appids
 
+
+
+##################################################################################################################################
+################################################# 2.) TRANSFORM  #################################################################
+##################################################################################################################################
+
+
+
+
 def analyze_sentiment(sentence):
     sid_obj = SentimentIntensityAnalyzer()
     return sid_obj.polarity_scores(sentence)
@@ -236,6 +234,32 @@ def label_polarity(polarity):
         return "negative"
     else:
         return "neutral"
+
+
+##################################################################################################################################
+################################################# 3.) LOAD  ######################################################################
+##################################################################################################################################
+
+
+
+def upload_string_to_gcs(csv_body, uploaded_filename, service_secret=os.environ.get('SERVICE_SECRET')):
+    BUCKET_NAME = "final-de-storage"
+    MY_FOLDER_PREFIX = "final_project"
+
+    gcs_resource = boto3.resource(
+        "s3",
+        region_name="auto",
+        endpoint_url="https://storage.googleapis.com",
+        aws_access_key_id=Variable.get("SERVICE_ACCESS_KEY"),
+        aws_secret_access_key=Variable.get("SERVICE_SECRET"),
+    )
+    gcs_resource.Object(BUCKET_NAME, MY_FOLDER_PREFIX + "/" + uploaded_filename).put(Body=csv_body.getvalue())
+
+
+##################################################################################################################################
+################################################# DAG ############################################################################
+##################################################################################################################################
+
 
 def webhook_message(message):
     DISCORD_WEBHOOK_API = Variable.get("DISCORD_WEBHOOK_API")
