@@ -165,8 +165,7 @@ def df_appids(df2,feed_name):
     print(f"getting appids for {feed_name}...")
     df["appids"] = appids
     df["summary"] = df["summary"].apply(lambda x: BeautifulSoup(x,"html.parser").text.strip().lower())
-    df["title_summary"] = df["title"] +" "+ df["summary"]
-    df["nouns"] = df["title_summary"].apply(get_nouns)
+    df["nouns"] = df["title"].apply(get_nouns)
     df["date_str"] = df["published"].apply(date_published_tostr)
     df.loc[df["appids"].isnull(),"appids"]= df.loc[df["appids"].isnull(),"nouns"].apply(init_null_appids)
     print(f"appids for {feed_name} initialized!")
