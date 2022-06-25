@@ -1,4 +1,4 @@
-# NER/OSM Data Pipeline with Apache Airflow & DAGs 
+# Game Articles, Reviews and Details Scrape with Airflow
 The data pipeline is catered to providing accesible, transformed, and normalized data for NLP/NER and Geospatial modelling data.
 
 ## Contribution Guidelines
@@ -32,15 +32,24 @@ The data pipeline is catered to providing accesible, transformed, and normalized
 - model     - folder where spacy model for the project is stored
     - the functions specifically specify the directory /model/en_core_web_sm/en_core_web_sm-3.3.0
     - make sure this folder is properly downloaded
-## Main use 
-The relevant files are stored in the `dags` folder, with the `test_dag.py` containing a sample dag for testing. You can modify the name, and description of these dags by modifying the relevant strings in between the bash operators.
+## How it works
 
-The main scrapers to be utilized are `scraper_dag.py` and `scraper_v2_dag.py`, which contain the main tasks and the runnable files. Street image.py is a sample script that obtains and stores the images of OSM, and is constructed for your reference. 
+The scraper starts off with scraping rss feeds from six sources:
 
-You can also increase the number of images / articles you scrape by modifying the `LIMIT` category in their respective queries.
+- ancient gaming
+- kotaku
+- indigames plus
+- escapist magazine
+- eurogamer
+- rock paper shotgun
 
-The pipeline has five sets of tasks. It scrapes data from selected newspapers, transforms them by adding NER and word_count columns as a way to prepare the headlines/summaries for analysis, then uploads them to a GCS bucket defined by the credentials provided. Following this, the local copies of the data on your machine are wiped, minimizing redundancy and data costs every time the scraper DAG is run. 
+The feed returns a `tags` column that highlights the topics of the article. The program loops through all the `tags` until it finds an exact match of the tag in steam's game store directory. Once it does, the `appid` of that game is added as a feature of that article.
 
+If an article's `tags` doesn't match any game in steam, the article's `title` is taken, and using spacy, extracts `noun` from it. All `noun` is looped through until it finds a match in steam's directory again. If an article hasn't found any `appid`, it is dropped.
+
+Using the `appids` scraped, steam api is used to gather the game details and its reviews.
+
+Afterwards, `sentiment_analysis`, `word_count` and, `named entity recognition (NER)` is applied to the texts of both articles and reviews.
 ## Setup 
 Open the command line or terminal
 
@@ -83,5 +92,14 @@ DISCORD_WEBHOOK_API is used for `BashOperator(...)` in dags for notification.
 ```
 python3 -m spacy download en_core_web_sm
 ```
+- change directory to model
 
+```
+cd model
+```
+- then
+
+```
+cp -r spacy_model_dir/en_core_web_sm .
+```
 
