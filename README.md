@@ -6,15 +6,14 @@ The data pipeline is catered to providing accesible, transformed, and normalized
 
 
 ## Project Structure
-|—airflow                   <- Main project directory. Contains Airflow files and configurations
-    |—dags                  <- Folder where all dags and tasks are configured
-    |—data                  <- Temporary data storage before uploading to the cloud. 
-    |—model                 <- Folder where spacy model used for the project is stored.
-    |—docker-compose.yaml   <- required for building docker container, provides specification on how it should be built.
-    |—.env                  <- used to configure AIRFLOW_UID
-|—README.MD                 <- The top-level README for developers/collaborators using this project.
-
-
+    |—airflow                   <- Main project directory. Contains Airflow files and configurations
+        |—dags                  <- Folder where all dags and tasks are configured
+        |—data                  <- Temporary data storage before uploading to the cloud. 
+        |—model                 <- Folder where spacy model used for the project is stored.
+        |—docker-compose.yaml   <- required for building docker container, provides specification on how it should be built.
+        |—.env                  <- used to configure AIRFLOW_UID
+    |—README.MD                 <- The top-level README for developers/collaborators using this project.
+---
 ## Main use 
 The relevant files are stored in the `dags` folder, with the `test_dag.py` containing a sample dag for testing. You can modify the name, and description of these dags by modifying the relevant strings in between the bash operators.
 
@@ -54,7 +53,7 @@ Three keys are required for the airflow variables:
 - SERVICE_SECRET
 - DISCORD_WEBHOOK_API
 
-This is found in `admin > variables > + sign (add a new record button)` and then manually provide values for keys above.
+This can be imported in `admin > variables > + sign (add a new record button)` and then manually provide values for keys above.
 Importing a .json file to automatically setup is also possible.
 
 The SERVICE keys are used in `boto3.resource(...)` function to access your cloud storage.
