@@ -77,12 +77,10 @@ def get_appid(game_name):
         app_id = app_details['data-ds-appid']
         game_found = app_details.find(class_="search_name").text.strip().lower()
     except:
-        time.sleep(sleep_time)
         return None
     
     if game_name == game_found:
         return app_id
-    time.sleep(sleep_time)
     return None
 
 def date_published_tostr(published):
