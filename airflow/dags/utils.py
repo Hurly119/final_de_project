@@ -66,6 +66,7 @@ def get_request(url,params=None,retries=0):
 
 ##initialize dfs
 def get_appid(game_name):
+    sleep_time = random.randint(1,5)
     game_name = game_name.lower()
     response = requests.get(url=f'https://store.steampowered.com/search/?term={game_name}&category1=998', headers={'User-Agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -77,10 +78,12 @@ def get_appid(game_name):
         app_id = app_details['data-ds-appid']
         game_found = app_details.find(class_="search_name").text.strip().lower()
     except:
+        time.sleep(sleep_time)
         return None
     
     if game_name == game_found:
         return app_id
+    time.sleep(sleep_time)
     return None
 
 def date_published_tostr(published):
