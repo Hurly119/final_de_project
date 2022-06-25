@@ -236,3 +236,8 @@ def label_polarity(polarity):
         return "negative"
     else:
         return "neutral"
+
+def webhook_message(message):
+    DISCORD_WEBHOOK_API = Variable.get("DISCORD_WEBHOOK_API")
+
+    return "curl -X POST -H 'Content-type: application/json' --data '{\"text\" :"+ f"\"{message}\""+ "}'"+ f" \"{DISCORD_WEBHOOK_API}/slack\""

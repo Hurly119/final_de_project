@@ -1,11 +1,11 @@
 # Game Articles, Reviews and Details Scrape with Airflow
+Gaming is one of the biggest industry in todays time. It's recent exponential growth, however, lead to a lot of problems. 
 
-## Contribution Guidelines
+People tend to misinterpret or misunderstand gaming at large and misinformation regarding it is rampant.
+Gaming companies also tend to be unregulated simply because no one knows how to deal with it as technology in general, is largely unknown to the public.
+People tend to regard gaming as "irrelevant" simply because its just games and not to be taken seriously. Gaming, however, is now a big part of our society and efforts to understand it must be done.
 
-- Have a Look at the [project structure](#project-structure) and [folder overview](#folder-overview) 
-- all tasks should be configured in dags.py
-    - when creating a new task follow the naming convention function_name = task_id
-    - functions that are not a task should be in utils.py.
+This project aims to paint a clearer picture of the gaming world by gathering game articles, game details and reviews together with sentiment analysis and named entity recognition.
     
 
 
@@ -14,8 +14,8 @@
         |—dags                          <- Folder where all dags and tasks are configured.
             |—dags.py                   <- File where all tasks and dags are configured.
             |—utils.py                  <- helper functions used by dags.py.
-        |—data                          <- Temporary data storage before uploading to the cloud. 
-        |—model                         <- Folder where spacy model used for the project is stored.
+        |—data                          <- Temporary data storage before uploading to the cloud. Emptied after loading.
+        |—model                         <- Folder where spacy model used for the project is stored. Do not change if working.
             |—en_core_web_sm
                 |—en_core_web_sm-3.3.0  <- spacy model loaded for the project.
         |—docker-compose.yaml           <- required for building docker container, provides specification on building it.
@@ -23,14 +23,6 @@
     |—README.MD                         <- The top-level README for developers/collaborators using this project.
 ---
 
-## Folder Overview
-
-- Airflow   - Main project directory. Contains Airflow files, folders and configurations
-- dags      - 
-- data      - temporary data storage before uploading to the cloud. Emptied after loading
-- model     - folder where spacy model for the project is stored
-    - the functions specifically specify the directory /model/en_core_web_sm/en_core_web_sm-3.3.0
-    - make sure this folder is properly downloaded
 ## How it works
 
 The scraper starts off with scraping rss feeds from six sources:
@@ -49,6 +41,7 @@ If an article's `tags` doesn't match any game in steam, the article's `title` is
 Using the `appids` scraped, steam api is used to gather the game details and its reviews.
 
 Afterwards, `sentiment_analysis`, `word_count` and, `named entity recognition (NER)` is applied to the texts of both articles and reviews.
+
 ## Setup 
 Open the command line or terminal
 

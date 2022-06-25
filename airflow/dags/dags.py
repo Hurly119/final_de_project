@@ -26,10 +26,9 @@ nltk.download('stopwords')
 from nltk.corpus import stopwords
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from utils import upload_formatted_rss_feed,scrape_reviews,scrape_appdetails,get_unique_appids,analyze_sentiment,label_polarity,upload_string_to_gcs
+from utils import upload_formatted_rss_feed,scrape_reviews,scrape_appdetails,get_unique_appids,analyze_sentiment,label_polarity,upload_string_to_gcs,webhook_message
 
 BUCKET_NAME = "news_sites"
-DISCORD_WEBHOOK_API = Variable.get("DISCORD_WEBHOOK_API")
 DATE_NOW = datetime.now().strftime("%Y-%m-%d")
 # Data directory for CSVs and OSM Images
 DATA_PATH = '/opt/airflow/data/'
@@ -268,82 +267,104 @@ with DAG(
     tags=['scrapers'],
 ) as dag:
 
+
     dagstart_msg = BashOperator(
         task_id="dagstart_msg",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"Dag tasks starting!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("Dag tasks starting!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"Dag tasks starting!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     article_scraping1 = BashOperator(
         task_id="article_scraping1",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"task 1.0, initiating data extraction: article scraping 1!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("task 1.0, initiating data extraction: article scraping 1!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"task 1.0, initiating data extraction: article scraping 1!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     article_scraping1_end = BashOperator(
         task_id="article_scraping1_end",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"continuing task 1.0: article scraping 1 complete!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("continuing task 1.0: article scraping 1 complete!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"continuing task 1.0: article scraping 1 complete!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     article_scraping2 = BashOperator(
         task_id="article_scraping2",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"continuing task 1.0: article scraping 2!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("continuing task 1.0: article scraping 2!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"continuing task 1.0: article scraping 2!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     article_scraping2_end = BashOperator(
         task_id="article_scraping2_end",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1.0: article scraping complete!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("ending task 1.0: article scraping complete!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1.0: article scraping complete!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     steam_scraping = BashOperator(
         task_id="steam_scraping",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 1.5: scraping user reviews and game details!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("starting task 1.5: scraping user reviews and game details!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 1.5: scraping user reviews and game details!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     steam_scraping_end = BashOperator(
         task_id="data_extraction_end",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1.5: steam scraping complete! all data extracted.\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("ending task 1.5: steam scraping complete! all data extracted."),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 1.5: steam scraping complete! all data extracted.\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     transformation = BashOperator(
         task_id="transformation_start",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 2.0: beginning data transformation\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("starting task 2.0: beginning data transformation"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 2.0: beginning data transformation\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
     transformation_end = BashOperator(
         task_id="transformation_end",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 2.0: data transformation completed!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("ending task 2.0: data transformation completed!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 2.0: data transformation completed!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     loading_data = BashOperator(
         task_id="data_loading",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 3.0: beginning data loading\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("starting task 3.0: beginning data loading"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"starting task 3.0: beginning data loading\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
     loading_data_end = BashOperator(
         task_id="data_loading_end",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 3.0: data successfully loaded to the cloud!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("ending task 3.0: data successfully loaded to the cloud!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"ending task 3.0: data successfully loaded to the cloud!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
     dagend_msg = BashOperator(
         task_id="dagend_msg",
-        bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"All dag tasks completed!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
+        bash_command = webhook_message("All dag tasks completed!"),
+        # bash_command="curl -X POST -H 'Content-type: application/json' --data '{\"text\" : \"All dag tasks completed!\"}' \"https://discord.com/api/webhooks/989959670280114226/sYX3j1haTK5CI4ZHzsjRs0bMS--99EEJ-_lVci0Ikj5LJOyHDWOMdraBNQosjG6gofhW/slack\"",
         dag=dag
     )
 
     # t1 >> load_data() >> t2_end
     dagstart_msg \
-    >> article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
-    >> article_scraping2 >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> combine_all_articles() >> article_scraping2_end \
-    >> steam_scraping >> [scrape_game_details(),scrape_game_reviews()] >> steam_scraping_end \
-    >> transformation >> sentiment_analysis() >> word_count() >> spacy_ner() >> transformation_end >> data_validation() \
-    >> loading_data >> load_data() >> loading_data_end >> delete_residuals() >> \
+    >> article_scraping1 \
+    >> article_scraping1_end \
+    >> article_scraping2 >> article_scraping2_end \
+    >> steam_scraping >> steam_scraping_end \
+    >> transformation  >> transformation_end \
+    >> loading_data >> loading_data_end >>  \
     dagend_msg
     # article_scraping2 >> [eurogamer_feed()] >> combine_all_articles() >> article_scraping2_end \
     # combine_all_articles() >> t1_end >> [scrape_game_details(),scrape_game_reviews()] >> t2_end
+
+    # dagstart_msg \
+    # >> article_scraping1 >> [indigames_plus_feed(),kotaku_feed(), escapist_mag_feed()] >> article_scraping1_end \
+    # >> article_scraping2 >> [eurogamer_feed(),rock_paper_sg_feed(),ancient_gaming_feed()] >> combine_all_articles() >> article_scraping2_end \
+    # >> steam_scraping >> [scrape_game_details(),scrape_game_reviews()] >> steam_scraping_end \
+    # >> transformation >> sentiment_analysis() >> word_count() >> spacy_ner() >> transformation_end >> data_validation() \
+    # >> loading_data >> load_data() >> loading_data_end >> delete_residuals() >> \
+    # dagend_msg
