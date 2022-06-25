@@ -3,16 +3,27 @@ The data pipeline is catered to providing accesible, transformed, and normalized
 
 ## Contribution Guidelines
 
+- Have a Look at the [project structure](#project-structure) and [folder overview](#folder-overview) 
+- If you're creating a task, Go to the task folder and create a new folder with the below naming convention and add a README.md with task details and goals to help other contributors understand
+  - Task Folder Naming Convention : _task-n-taskname.(n is the task number)_ ex: task-1-data-analysis, task-2-model-deployment etc.
+  - Create a README.md with a table containing information table about all contributions for the task.
+- If you're contributing for a task, please make sure to store in relavant location and update the README.md information table with your contribution details.
+- Make sure your File names(jupyter notebooks, python files, data sheet file names etc) has proper naming to help others in easily identifing them.
+- Please restrict yourself from creating unnessesary folders other than in 'tasks' folder (as above mentioned naming convention) to avoid confusion.
 
 
 ## Project Structure
-    |—airflow                   <- Main project directory. Contains Airflow files and configurations
-        |—dags                  <- Folder where all dags and tasks are configured
-        |—data                  <- Temporary data storage before uploading to the cloud. 
-        |—model                 <- Folder where spacy model used for the project is stored.
-        |—docker-compose.yaml   <- required for building docker container, provides specification on how it should be built.
-        |—.env                  <- used to configure AIRFLOW_UID
-    |—README.MD                 <- The top-level README for developers/collaborators using this project.
+    |—airflow                           <- Main project directory. Contains Airflow files and configurations
+        |—dags                          <- Folder where all dags and tasks are configured.
+            |—dags.py                   <- File where all tasks and dags are configured.
+            |—utils.py                  <- helper functions used by dags.py.
+        |—data                          <- Temporary data storage before uploading to the cloud. 
+        |—model                         <- Folder where spacy model used for the project is stored.
+            |—en_core_web_sm
+                |—en_core_web_sm-3.3.0  <- spacy model loaded for the project.
+        |—docker-compose.yaml           <- required for building docker container, provides specification on building it.
+        |—.env                          <- used to configure AIRFLOW_UID
+    |—README.MD                         <- The top-level README for developers/collaborators using this project.
 ---
 ## Main use 
 The relevant files are stored in the `dags` folder, with the `test_dag.py` containing a sample dag for testing. You can modify the name, and description of these dags by modifying the relevant strings in between the bash operators.
