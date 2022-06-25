@@ -29,7 +29,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from utils import upload_formatted_rss_feed,scrape_reviews,scrape_appdetails,get_unique_appids,analyze_sentiment,label_polarity,upload_string_to_gcs
 
 BUCKET_NAME = "news_sites"
-
+DISCORD_WEBHOOK_API = Variable.get("DISCORD_WEBHOOK_API")
 DATE_NOW = datetime.now().strftime("%Y-%m-%d")
 # Data directory for CSVs and OSM Images
 DATA_PATH = '/opt/airflow/data/'

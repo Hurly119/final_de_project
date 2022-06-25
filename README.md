@@ -1,5 +1,4 @@
 # Game Articles, Reviews and Details Scrape with Airflow
-The data pipeline is catered to providing accesible, transformed, and normalized data for NLP/NER and Geospatial modelling data.
 
 ## Contribution Guidelines
 
