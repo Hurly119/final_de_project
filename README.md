@@ -1,15 +1,21 @@
 # NER/OSM Data Pipeline with Apache Airflow & DAGs 
 The data pipeline is catered to providing accesible, transformed, and normalized data for NLP/NER and Geospatial modelling data.
 
-# Data Engineering Cohort 1
-Sprint 4 Final Project 
-Submitted by Hurly Zade Christian C. Cabalan
-
 ## Contribution Guidelines
 
 
 
-# Main use 
+## Project Structure
+|—airflow                   <- Main project directory. Contains Airflow files and configurations
+    |—dags                  <- Folder where all dags and tasks are configured
+    |—data                  <- Temporary data storage before uploading to the cloud. 
+    |—model                 <- Folder where spacy model used for the project is stored.
+    |—docker-compose.yaml   <- required for building docker container, provides specification on how it should be built.
+    |—.env                  <- used to configure AIRFLOW_UID
+|—README.MD                 <- The top-level README for developers/collaborators using this project.
+
+
+## Main use 
 The relevant files are stored in the `dags` folder, with the `test_dag.py` containing a sample dag for testing. You can modify the name, and description of these dags by modifying the relevant strings in between the bash operators.
 
 The main scrapers to be utilized are `scraper_dag.py` and `scraper_v2_dag.py`, which contain the main tasks and the runnable files. Street image.py is a sample script that obtains and stores the images of OSM, and is constructed for your reference. 
@@ -44,9 +50,9 @@ docker compose up
 It is necessary for you to configure variables in airflow, and set this manually in the Apache Airflow GUI.
 
 Three keys are required for the airflow variables:
-SERVICE_ACCESS_KEY
-SERVICE_SECRET
-DISCORD_WEBHOOK_API
+- SERVICE_ACCESS_KEY
+- SERVICE_SECRET
+- DISCORD_WEBHOOK_API
 
 This is found in `admin > variables > + sign (add a new record button)` and then manually provide values for keys above.
 Importing a .json file to automatically setup is also possible.
@@ -55,11 +61,6 @@ The SERVICE keys are used in `boto3.resource(...)` function to access your cloud
 
 DISCORD_WEBHOOK_API is used for `BashOperator(...)` in dags for notification.   
 
-# Challenges and Points for Improvement 
-One of the main challenges here is ensuring data validation for our files. We focused more on ensuring that the ETL process was successful, as opposed to optimizing the data flow now. So we can work on ensuring the data we get is *normalized, possessing unique primary keys, and other pertinent features for creating a more robust and efficient data infrastructure. 
 
-Second, we could work on optimizing our cleanup tasks. It's possible that bugs can occur when the pipeline prematurely deletes files that don't exist, which can occur when testing specific tasks or bugs that can crop up from other errors. We can fix this by timestamping the image files, and adding try-accpet catches for it.
-
-Finally, I think we can work on making deploying this on the cloud. Our configuration is optimized mostly for developing them in the local machine, so learning how to configure the cloud VMs, the local docker files, and the github content can probably help when we want to scale up the use of this pipeline.
 
 
