@@ -56,12 +56,17 @@ def get_request(url,params=None,retries=0):
         return get_request(url,params,retries)
 
 def get_appid(game_name):
+
+    sleep_time = random.randint(1,5)
+
     game_name = game_name.lower()
     response = requests.get(url=f'https://store.steampowered.com/search/?term={game_name}&category1=998', headers={'User-Agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(response.text, 'html.parser')
     app_details = None
     app_id = None
     game_found = None
+
+    time.sleep(sleep_time)
     try:
         app_details = soup.find(class_='search_result_row')
         app_id = app_details['data-ds-appid']
