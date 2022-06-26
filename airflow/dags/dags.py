@@ -35,7 +35,7 @@ DATA_PATH = '/opt/airflow/data/'
 
 GAME_ARTICLE_FILENAME = f"{DATA_PATH}game_articles_{DATE_NOW}.csv"
 GAME_REVIEWS_FILENAME = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
-GAME_DETAILS_FILENAME = f"{DATA_PATH}game_reviews_{DATE_NOW}.csv"
+GAME_DETAILS_FILENAME = f"{DATA_PATH}game_details_{DATE_NOW}.csv"
 
 ##################################################################################################################################
 ################################################# 1.) EXTRACT #################################################################
