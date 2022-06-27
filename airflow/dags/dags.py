@@ -240,7 +240,7 @@ def data_validation(ds=None,**kwargs):
     game_reviews = pd.read_csv(GAME_REVIEWS_FILENAME)
     game_details = pd.read_csv(GAME_DETAILS_FILENAME)
 
-    game_details = game_details.dropna(how="all")
+    game_details = game_details.dropna(subset=["name"])
     game_details = game_details.rename(columns={"appid":"appids"})
     game_details = game_details.drop_duplicates(subset=["appids"])
     game_details.to_csv(GAME_DETAILS_FILENAME,index=False)
@@ -250,7 +250,7 @@ def data_validation(ds=None,**kwargs):
     game_reviews = game_reviews.drop_duplicates(subset=["review"])
     game_reviews.to_csv(GAME_REVIEWS_FILENAME,index=False)
 
-    game_articles = game_articles.dropna(how="all")
+    game_articles = game_articles.dropna(subset=["summary"])
     game_articles = game_articles.drop_duplicates()
     game_articles.to_csv(GAME_ARTICLE_FILENAME,index=False)
 
